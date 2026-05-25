@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { workTypeService } from '@/services/workType.service';
 
 export class WorkTypeController {
-  async getAll(req: Request, res: Response) {
+  async getAll(_req: Request, res: Response): Promise<void> {
     try {
       const workTypes = await workTypeService.findAll();
       res.json(workTypes);
@@ -11,13 +11,14 @@ export class WorkTypeController {
     }
   }
 
-  async getById(req: Request, res: Response) {
+  async getById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const workType = await workTypeService.findById(id);
       
       if (!workType) {
-        return res.status(404).json({ error: 'Вид работ не найден' });
+        res.status(404).json({ error: 'Вид работ не найден' });
+        return;
       }
       
       res.json(workType);

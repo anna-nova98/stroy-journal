@@ -7,8 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Устанавливаем зависимости
-RUN npm ci --only=production
+# Устанавливаем все зависимости (включая dev для сборки)
+RUN npm install
 
 # Копируем исходный код
 COPY . .
@@ -26,7 +26,7 @@ WORKDIR /app
 
 # Устанавливаем зависимости только для production
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Копируем собранное приложение
 COPY --from=builder /app/dist ./dist

@@ -3,31 +3,34 @@ import { config } from '@/config';
 
 export const errorHandler = (
   error: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  _next: NextFunction
+): void => {
   console.error('Error:', error);
 
   if (error.name === 'ValidationError') {
-    return res.status(400).json({
+    res.status(400).json({
       error: 'Ошибка валидации',
       details: error.message,
     });
+    return;
   }
 
   if (error.name === 'NotFoundError') {
-    return res.status(404).json({
+    res.status(404).json({
       error: 'Ресурс не найден',
     });
+    return;
   }
 
   // Для Prisma ошибок
   if (error.name === 'PrismaClientKnownRequestError') {
-    return res.status(400).json({
+    res.status(400).json({
       error: 'Ошибка базы данных',
       details: config.nodeEnv === 'development' ? error.message : undefined,
     });
+    return;
   }
 
   res.status(500).json({
@@ -36,7 +39,7 @@ export const errorHandler = (
   });
 };
 
-export const notFoundHandler = (req: Request, res: Response) => {
+export const notFoundHandler = (req: Request, res: Response): void => {
   res.status(404).json({
     error: 'Маршрут не найден',
     path: req.path,

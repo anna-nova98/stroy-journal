@@ -7,7 +7,7 @@ import {
 } from '@/validators/workLog.validator';
 
 export class WorkLogController {
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response): Promise<void> {
     try {
       const query = workLogQuerySchema.parse(req.query);
       const result = await workLogService.findAll(query);
@@ -17,13 +17,14 @@ export class WorkLogController {
     }
   }
 
-  async getById(req: Request, res: Response) {
+  async getById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const workLog = await workLogService.findById(id);
       
       if (!workLog) {
-        return res.status(404).json({ error: 'Запись не найдена' });
+        res.status(404).json({ error: 'Запись не найдена' });
+        return;
       }
       
       res.json(workLog);
@@ -32,7 +33,7 @@ export class WorkLogController {
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response): Promise<void> {
     try {
       const data = createWorkLogSchema.parse(req.body);
       const workLog = await workLogService.create(data);
@@ -42,14 +43,15 @@ export class WorkLogController {
     }
   }
 
-  async update(req: Request, res: Response) {
+  async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const data = updateWorkLogSchema.parse(req.body);
       
       const existingWorkLog = await workLogService.findById(id);
       if (!existingWorkLog) {
-        return res.status(404).json({ error: 'Запись не найдена' });
+        res.status(404).json({ error: 'Запись не найдена' });
+        return;
       }
       
       const updatedWorkLog = await workLogService.update(id, data);
@@ -59,13 +61,14 @@ export class WorkLogController {
     }
   }
 
-  async delete(req: Request, res: Response) {
+  async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       
       const existingWorkLog = await workLogService.findById(id);
       if (!existingWorkLog) {
-        return res.status(404).json({ error: 'Запись не найдена' });
+        res.status(404).json({ error: 'Запись не найдена' });
+        return;
       }
       
       await workLogService.delete(id);
