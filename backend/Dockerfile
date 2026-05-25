@@ -32,6 +32,7 @@ RUN npm install --only=production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/public ./public
 
 # Создаем пользователя без привилегий
 RUN addgroup -g 1001 -S nodejs

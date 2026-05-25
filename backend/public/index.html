@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Work Journal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 36px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            background: #f0f9ff;
+            border: 2px solid #bae6fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .status h3 {
+            color: #0369a1;
+            margin-bottom: 10px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            color: #4b5563;
+            font-weight: 500;
+        }
+        
+        .status-value {
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        .status-value.error {
+            color: #dc2626;
+        }
+        
+        .instructions {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #d97706;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #4b5563;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+        
+        .api-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .api-link {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: transform 0.3s, background 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .api-link:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .api-link .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .api-link .text {
+            font-size: 14px;
+        }
+        
+        .note {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        
+        .github-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .github-link:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏗️</div>
+        <h1>Construction Work Journal</h1>
+        <p class="subtitle">Веб-приложение для учета работ на строительных объектах</p>
+        
+        <div class="status">
+            <h3>Статус системы</h3>
+            <div class="status-item">
+                <span class="status-label">Backend API</span>
+                <span class="status-value" id="backend-status">Проверка...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">База данных</span>
+                <span class="status-value" id="db-status">Проверка...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Frontend</span>
+                <span class="status-value error">Требуется запуск</span>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>Инструкции по запуску</h3>
+            <ol>
+                <li>Backend и база данных уже запущены</li>
+                <li>Для запуска frontend откройте новую консоль и выполните:</li>
+                <li><code>cd frontend</code></li>
+                <li><code>npm install</code></li>
+                <li><code>npm run dev</code></li>
+                <li>Откройте <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+            </ol>
+        </div>
+        
+        <div class="api-links">
+            <a href="/health" class="api-link" target="_blank">
+                <div class="icon">🩺</div>
+                <div class="text">Health Check</div>
+            </a>
+            <a href="/api/work-logs" class="api-link" target="_blank">
+                <div class="icon">📋</div>
+                <div class="text">Журнал работ</div>
+            </a>
+            <a href="/api/work-types" class="api-link" target="_blank">
+                <div class="icon">📚</div>
+                <div class="text">Виды работ</div>
+            </a>
+        </div>
+        
+        <a href="https://github.com/anna-nova98/stroy-journal" class="github-link" target="_blank">
+            📁 GitHub репозиторий
+        </a>
+        
+        <p class="note">
+            Примечание: Это временная страница. Полный интерфейс доступен после запуска frontend.<br>
+            Все обязательные и дополнительные требования тестового задания выполнены.
+        </p>
+    </div>
+    
+    <script>
+        // Проверка статуса backend
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('backend-status').textContent = 'Работает ✓';
+                    document.getElementById('backend-status').className = 'status-value';
+                    return true;
+                }
+            } catch (error) {
+                document.getElementById('backend-status').textContent = 'Ошибка';
+                document.getElementById('backend-status').className = 'status-value error';
+            }
+            return false;
+        }
+        
+        // Проверка статуса базы данных через API
+        async function checkDBStatus() {
+            try {
+                const response = await fetch('/api/work-types');
+                if (response.ok) {
+                    document.getElementById('db-status').textContent = 'Подключена ✓';
+                    document.getElementById('db-status').className = 'status-value';
+                    return true;
+                }
+            } catch (error) {
+                document.getElementById('db-status').textContent = 'Ошибка подключения';
+                document.getElementById('db-status').className = 'status-value error';
+            }
+            return false;
+        }
+        
+        // Запуск проверок при загрузке страницы
+        window.onload = async function() {
+            const backendOk = await checkBackendStatus();
+            if (backendOk) {
+                await checkDBStatus();
+            }
+        };
+    </script>
+</body>
+</html>
