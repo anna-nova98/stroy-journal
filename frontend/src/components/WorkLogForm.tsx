@@ -21,7 +21,7 @@ import { useCreateWorkLog, useUpdateWorkLog, useWorkTypes } from '@/hooks/useWor
 import { CreateWorkLogInput, WorkLogWithDetails } from '@/types';
 
 const schema = yup.object({
-  workDate: yup.date().required('Дата обязательна'),
+  workDate: yup.string().required('Дата обязательна'),
   workTypeId: yup.string().required('Вид работ обязателен'),
   quantity: yup
     .number()
