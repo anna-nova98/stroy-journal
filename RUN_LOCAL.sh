@@ -1,0 +1,66 @@
+#!/bin/bash
+
+echo "============================================"
+echo "🚀 RUN LOCAL - Construction Work Journal"
+echo "============================================"
+echo ""
+echo "This script runs everything locally (no Docker for backend/frontend)."
+echo "Only PostgreSQL runs in Docker for simplicity."
+echo ""
+
+echo "Step 1: Start PostgreSQL database with Docker..."
+echo ""
+docker-compose up -d postgres
+if [ $? -ne 0 ]; then
+    echo "❌ Docker database failed to start."
+    echo "Please make sure Docker is running."
+    exit 1
+fi
+
+echo ""
+echo "✅ PostgreSQL database started."
+echo "Waiting 5 seconds for database to initialize..."
+sleep 5
+
+echo ""
+echo "Step 2: Set up backend..."
+echo ""
+echo "📋 INSTRUCTIONS for backend:"
+echo "1. Open a NEW terminal window"
+echo "2. Run these commands:"
+echo "   cd backend"
+echo "   npm install"
+echo "   npx prisma generate"
+echo "   npm run build"
+echo "   npm start"
+echo "3. Backend will run on: http://localhost:5000"
+echo ""
+
+echo "Step 3: Set up frontend..."
+echo ""
+echo "📋 INSTRUCTIONS for frontend:"
+echo "1. Open ANOTHER NEW terminal window"
+echo "2. Run these commands:"
+echo "   cd frontend"
+echo "   npm install"
+echo "   npm run dev"
+echo "3. Frontend will run on: http://localhost:3000"
+echo ""
+
+echo ""
+echo "🌐 Once both are running:"
+echo "- Backend: http://localhost:5000"
+echo "- Frontend: http://localhost:3000"
+echo ""
+echo "📊 API endpoints:"
+echo "  - Health: http://localhost:5000/health"
+echo "  - Work Logs: http://localhost:5000/api/work-logs"
+echo "  - Work Types: http://localhost:5000/api/work-types"
+echo ""
+echo "🛑 To stop database: docker-compose down"
+echo ""
+echo "💡 TROUBLESHOOTING:"
+echo "If backend fails with path errors, edit tsconfig.json:"
+echo "Change \"paths\": {\"@/*\": [\"src/*\"]} to empty object {}"
+echo "Then run: npm run build again"
+echo ""
