@@ -3,6 +3,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Устанавливаем дополнительные пакеты для сборки
+RUN apk add --no-cache python3 make g++
+
 # Копируем package.json и package-lock.json
 COPY package*.json ./
 

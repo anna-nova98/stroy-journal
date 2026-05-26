@@ -22,6 +22,13 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['date-fns'],
+    esbuildOptions: {
+      // Fix for date-fns v2 compatibility
+      plugins: [],
+    },
+  },
+  ssr: {
+    noExternal: ['date-fns'],
   },
   build: {
     outDir: 'dist',
