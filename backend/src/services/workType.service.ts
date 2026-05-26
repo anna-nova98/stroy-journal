@@ -1,4 +1,4 @@
-import prisma from '@/utils/database';
+import prisma from '../utils/database';
 
 export class WorkTypeService {
   async findAll() {

@@ -14,8 +14,15 @@ export const workLogQuerySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Дата должна быть в формате YYYY-MM-DD').optional(),
   workTypeId: z.string().uuid('Неверный формат ID вида работ').optional(),
   workerName: z.string().optional(),
+  notes: z.string().optional(),
+  minQuantity: z.string().regex(/^\d*\.?\d+$/, 'Минимальное количество должно быть числом').optional(),
+  maxQuantity: z.string().regex(/^\d*\.?\d+$/, 'Максимальное количество должно быть числом').optional(),
   page: z.string().regex(/^\d+$/, 'Номер страницы должен быть числом').optional(),
   limit: z.string().regex(/^\d+$/, 'Лимит должен быть числом').optional(),
+  sortBy: z.enum(['workDate', 'quantity', 'workerName', 'createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Начальная дата должна быть в формате YYYY-MM-DD').optional(),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Конечная дата должна быть в формате YYYY-MM-DD').optional(),
 });
 
 export type CreateWorkLogInput = z.infer<typeof createWorkLogSchema>;

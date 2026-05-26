@@ -1,5 +1,5 @@
-import prisma from '@/utils/database';
-import { CreateWorkLogInput, UpdateWorkLogInput, WorkLogQueryInput } from '@/validators/workLog.validator';
+import prisma from '../utils/database';
+import { CreateWorkLogInput, UpdateWorkLogInput, WorkLogQueryInput } from '../validators/workLog.validator';
 
 export class WorkLogService {
   async findAll(query: WorkLogQueryInput) {
@@ -7,8 +7,15 @@ export class WorkLogService {
       date,
       workTypeId,
       workerName,
+      notes,
+      minQuantity,
+      maxQuantity,
       page = '1',
       limit = '20',
+      sortBy = 'workDate',
+      sortOrder = 'desc',
+      startDate,
+      endDate,
     } = query;
 
     const pageNum = parseInt(page, 10);
@@ -17,7 +24,18 @@ export class WorkLogService {
 
     const where: any = {};
 
-    if (date) {
+    // Handle date range (startDate and endDate)
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setDate(end.getDate() + 1); // Include the end date
+      
+      where.workDate = {
+        gte: start,
+        lt: end,
+      };
+    } else if (date) {
+      // Single date filter
       const startDate = new Date(date);
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 1);
@@ -35,8 +53,37 @@ export class WorkLogService {
     if (workerName) {
       where.workerName = {
         contains: workerName,
-        mode: 'insensitive' as const,
+        mode: 'insensitive' as any,
       };
+    }
+
+    if (notes) {
+      where.notes = {
+        contains: notes,
+        mode: 'insensitive' as any,
+      };
+    }
+
+    if (minQuantity || maxQuantity) {
+      where.quantity = {};
+      
+      if (minQuantity) {
+        where.quantity.gte = parseFloat(minQuantity);
+      }
+      
+      if (maxQuantity) {
+        where.quantity.lte = parseFloat(maxQuantity);
+      }
+    }
+
+    // Build orderBy based on sort parameters
+    const orderBy: any = {};
+    if (sortBy === 'workType.name') {
+      orderBy.workType = {
+        name: sortOrder,
+      };
+    } else {
+      orderBy[sortBy] = sortOrder;
     }
 
     const [workLogs, total] = await Promise.all([
@@ -45,9 +92,7 @@ export class WorkLogService {
         include: {
           workType: true,
         },
-        orderBy: {
-          workDate: 'desc',
-        },
+        orderBy,
         skip,
         take: limitNum,
       }),
@@ -61,6 +106,8 @@ export class WorkLogService {
         page: pageNum,
         limit: limitNum,
         totalPages: Math.ceil(total / limitNum),
+        sortBy,
+        sortOrder,
       },
     };
   }

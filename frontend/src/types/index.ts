@@ -37,8 +37,18 @@ export interface WorkLogQueryParams {
   date?: string;
   workTypeId?: string;
   workerName?: string;
+  notes?: string;
+  minQuantity?: number;
+  maxQuantity?: number;
   page?: number;
   limit?: number;
+  sortBy?: 'workDate' | 'quantity' | 'workerName' | 'workType.name' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+  dateRange?: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
+  startDate?: string;
+  endDate?: string;
+  status?: 'active' | 'completed' | 'pending';
+  priority?: 'low' | 'medium' | 'high';
 }
 
 export interface PaginatedResponse<T> {

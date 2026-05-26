@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { workTypeService } from '@/services/workType.service';
+import { workTypeService } from '../services/workType.service';
 
 export class WorkTypeController {
   async getAll(_req: Request, res: Response): Promise<void> {

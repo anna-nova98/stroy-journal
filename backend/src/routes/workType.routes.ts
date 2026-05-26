@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { workTypeController } from '@/controllers/workType.controller';
+import { workTypeController } from '../controllers/workType.controller';
 
 const router = Router();
 

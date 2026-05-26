@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { workLogService } from '@/services/workLog.service';
+import { workLogService } from '../services/workLog.service';
 import {
   createWorkLogSchema,
   updateWorkLogSchema,
   workLogQuerySchema,
-} from '@/validators/workLog.validator';
+} from '../validators/workLog.validator';
 
 export class WorkLogController {
   async getAll(req: Request, res: Response): Promise<void> {

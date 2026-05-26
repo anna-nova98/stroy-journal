@@ -12,13 +12,33 @@ import {
   Grid,
   Alert,
   CircularProgress,
+  InputAdornment,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ru } from 'date-fns/locale';
+import {
+  Assignment,
+  Construction,
+  Group,
+  Description,
+  Clear as ClearIcon,
+  Add as AddIcon,
+  Save as SaveIcon,
+  Edit as EditIcon,
+} from '@mui/icons-material';
 import { useCreateWorkLog, useUpdateWorkLog, useWorkTypes } from '@/hooks/useWorkLogs';
 import { CreateWorkLogInput, WorkLogWithDetails } from '@/types';
+
+// Helper function to format date for form (YYYY-MM-DD)
+const formatDateForForm = (dateString: string): string => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const schema = yup.object({
   workDate: yup.string().required('Дата обязательна'),
@@ -57,10 +77,16 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
     formState: { errors },
   } = useForm<CreateWorkLogInput>({
     resolver: yupResolver(schema),
-    defaultValues: initialData || {
-      workDate: new Date().toISOString().split('T')[0],
+    defaultValues: initialData ? {
+      workDate: initialData.workDate.split('T')[0], // Extract YYYY-MM-DD from ISO string
+      workTypeId: initialData.workTypeId,
+      quantity: initialData.quantity,
+      workerName: initialData.workerName,
+      notes: initialData.notes || '',
+    } : {
+      workDate: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD
       workTypeId: '',
-      quantity: 0,
+      quantity: 1, // Changed from 0 to 1 to pass validation
       workerName: '',
       notes: '',
     },
@@ -97,39 +123,104 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-      <Paper elevation={2} sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          {mode === 'create' ? 'Добавить новую запись' : 'Редактировать запись'}
-        </Typography>
+      <Box>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          mb: 3,
+          p: 2,
+          background: mode === 'create' 
+            ? 'linear-gradient(135deg, #2e7d3215 0%, #4caf5015 100%)' 
+            : 'linear-gradient(135deg, #0288d115 0%, #03a9f415 100%)',
+          borderRadius: 2,
+        }}>
+          <Box sx={{ 
+            backgroundColor: mode === 'create' ? 'success.main' : 'info.main',
+            borderRadius: 2,
+            p: 1.5,
+            mr: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            {mode === 'create' ? (
+              <Assignment sx={{ color: 'white', fontSize: 24 }} />
+            ) : (
+              <EditIcon sx={{ color: 'white', fontSize: 24 }} />
+            )}
+          </Box>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              {mode === 'create' ? '➕ Добавить новую запись' : '✏️ Редактировать запись'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {mode === 'create' 
+                ? 'Заполните форму для добавления новой работы' 
+                : 'Внесите изменения в существующую запись'}
+            </Typography>
+          </Box>
+        </Box>
 
         {successMessage && (
-          <Alert severity="success" sx={{ mb: 2 }}>
+          <Alert 
+            severity="success" 
+            sx={{ 
+              mb: 3, 
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'success.light',
+            }}
+            icon={<Assignment />}
+          >
             {successMessage}
           </Alert>
         )}
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            Ошибка: {(error as any).response?.data?.error || 'Неизвестная ошибка'}
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 3, 
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'error.light',
+            }}
+          >
+            ��шибка: {(error as any).response?.data?.error || 'Неизвестная ошибка'}
           </Alert>
         )}
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={6} lg={3}>
               <Controller
                 name="workDate"
                 control={control}
                 render={({ field }) => (
                   <DatePicker
                     label="Дата выполнения"
-                    value={field.value ? new Date(field.value) : null}
-                    onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                    value={field.value ? new Date(field.value + 'T00:00:00') : null} // Add time to avoid timezone issues
+                    onChange={(date) => {
+                      if (date) {
+                        // Format date as YYYY-MM-DD in local timezone
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        field.onChange(`${year}-${month}-${day}`);
+                      } else {
+                        field.onChange('');
+                      }
+                    }}
                     slotProps={{
                       textField: {
                         fullWidth: true,
                         error: !!errors.workDate,
                         helperText: errors.workDate?.message,
+                        sx: {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                          }
+                        }
                       },
                     }}
                   />
@@ -137,7 +228,7 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
               />
             </Grid>
 
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={6} lg={3}>
               <Controller
                 name="workTypeId"
                 control={control}
@@ -150,6 +241,11 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
                     error={!!errors.workTypeId}
                     helperText={errors.workTypeId?.message}
                     disabled={isLoadingTypes}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      }
+                    }}
                   >
                     {isLoadingTypes ? (
                       <MenuItem disabled>
@@ -158,7 +254,15 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
                     ) : (
                       workTypes?.map((type) => (
                         <MenuItem key={type.id} value={type.id}>
-                          {type.name} ({type.unit})
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Construction sx={{ mr: 1, fontSize: 18, color: 'primary.main' }} />
+                            <Box>
+                              <Typography variant="body2">{type.name}</Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {type.unit}
+                              </Typography>
+                            </Box>
+                          </Box>
                         </MenuItem>
                       ))
                     )}
@@ -167,7 +271,7 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
               />
             </Grid>
 
-            <Grid item xs={12} md={2}>
+            <Grid item xs={12} md={6} lg={2}>
               <Controller
                 name="quantity"
                 control={control}
@@ -180,12 +284,26 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
                     error={!!errors.quantity}
                     helperText={errors.quantity?.message}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      }
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Typography variant="caption" color="text.secondary">
+                            ед.
+                          </Typography>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 )}
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={6} lg={4}>
               <Controller
                 name="workerName"
                 control={control}
@@ -196,6 +314,18 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
                     fullWidth
                     error={!!errors.workerName}
                     helperText={errors.workerName?.message}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      }
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Group sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 )}
               />
@@ -211,21 +341,41 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
                     label="Примечания"
                     fullWidth
                     multiline
-                    rows={2}
+                    rows={3}
                     error={!!errors.notes}
                     helperText={errors.notes?.message}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      }
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Description sx={{ color: 'text.secondary', mt: 1 }} />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 )}
               />
             </Grid>
 
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'flex-end', 
+                gap: 2,
+                pt: 2,
+                borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+              }}>
                 <Button
                   type="button"
                   variant="outlined"
                   onClick={() => reset()}
                   disabled={isPending}
+                  startIcon={<ClearIcon />}
+                  sx={{ borderRadius: 2 }}
                 >
                   Очистить
                 </Button>
@@ -233,7 +383,16 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
                   type="submit"
                   variant="contained"
                   disabled={isPending}
-                  startIcon={isPending && <CircularProgress size={20} />}
+                  startIcon={isPending ? <CircularProgress size={20} /> : mode === 'create' ? <AddIcon /> : <SaveIcon />}
+                  sx={{ 
+                    borderRadius: 2,
+                    background: mode === 'create' 
+                      ? 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)' 
+                      : 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)',
+                    '&:hover': {
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                    }
+                  }}
                 >
                   {isPending
                     ? mode === 'create'
@@ -247,7 +406,7 @@ const WorkLogForm = ({ initialData, onSuccess, mode = 'create' }: WorkLogFormPro
             </Grid>
           </Grid>
         </form>
-      </Paper>
+      </Box>
     </LocalizationProvider>
   );
 };
