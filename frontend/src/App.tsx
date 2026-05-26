@@ -371,7 +371,7 @@ function buildTheme(mode: 'light' | 'dark', fontSize: 'small' | 'medium' | 'larg
             animation: 'float 3s ease-in-out infinite',
           },
           '.shimmer': {
-            background: (theme) => theme.palette.mode === 'dark'
+            background: (theme: any) => theme.palette.mode === 'dark'
               ? 'linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%)'
               : 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
             backgroundSize: '1000px 100%',
@@ -405,28 +405,28 @@ function buildTheme(mode: 'light' | 'dark', fontSize: 'small' | 'medium' | 'larg
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: (theme) => theme.palette.mode === 'dark'
+          boxShadow: (theme: any) => theme.palette.mode === 'dark'
             ? '0 4px 20px rgba(0, 0, 0, 0.2)'
             : '0 4px 20px rgba(0, 0, 0, 0.08)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        },
+        } as any,
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: (theme) => theme.palette.mode === 'dark'
+          boxShadow: (theme: any) => theme.palette.mode === 'dark'
             ? '0 4px 20px rgba(0, 0, 0, 0.2)'
             : '0 4px 20px rgba(0, 0, 0, 0.08)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             transform: 'translateY(-6px) scale(1.01)',
-            boxShadow: (theme) => theme.palette.mode === 'dark'
+            boxShadow: (theme: any) => theme.palette.mode === 'dark'
               ? '0 12px 40px rgba(0, 0, 0, 0.3)'
               : '0 12px 40px rgba(0, 0, 0, 0.15)',
           },
-        },
+        } as any,
       },
     },
     MuiButton: {
@@ -441,18 +441,18 @@ function buildTheme(mode: 'light' | 'dark', fontSize: 'small' | 'medium' | 'larg
           overflow: 'hidden',
         },
         contained: {
-          boxShadow: (theme) => 
+          boxShadow: (theme: any) => 
             theme.palette.mode === 'dark' 
               ? '0 4px 12px rgba(108, 142, 255, 0.2)' 
               : '0 4px 12px rgba(26, 35, 126, 0.2)',
           '&:hover': {
             transform: 'translateY(-2px)',
-            boxShadow: (theme) =>
+            boxShadow: (theme: any) =>
               theme.palette.mode === 'dark'
                 ? '0 8px 20px rgba(108, 142, 255, 0.3)'
                 : '0 8px 20px rgba(26, 35, 126, 0.3)',
           },
-        },
+        } as any,
         outlined: {
           borderWidth: 1.5,
           '&:hover': {
@@ -466,12 +466,14 @@ function buildTheme(mode: 'light' | 'dark', fontSize: 'small' | 'medium' | 'larg
       styleOverrides: {
         head: {
           fontWeight: 600,
-          backgroundColor: '#f5f5f5',
+          backgroundColor: (theme: any) => theme.palette.mode === 'dark' 
+            ? '#1c2128' 
+            : '#f5f5f5',
           transition: 'all 0.2s ease',
-        },
+        } as any,
         body: {
           transition: 'all 0.2s ease',
-        },
+        } as any,
       },
     },
     MuiChip: {
@@ -570,6 +572,7 @@ function AppInner() {
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [refreshSnackbar, setRefreshSnackbar] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState('');
+  const [speedDialOpen, setSpeedDialOpen] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, text: 'Добавлена новая запись в журнал', time: '5 мин назад', color: '#2e7d32', read: false },
     { id: 2, text: 'Запись успешно обновлена', time: '1 час назад', color: '#0288d1', read: false },
@@ -773,6 +776,22 @@ function AppInner() {
                 </Button>
               </Tooltip>
               
+              <Tooltip title="Настройки">
+                <IconButton 
+                  color="inherit"
+                  onClick={handleOpenSettings}
+                  sx={{ 
+                    '&:hover': { 
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      transform: 'scale(1.1)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  <SettingsIcon />
+                </IconButton>
+              </Tooltip>
+              
               <Tooltip title="Профиль пользователя">
                 <IconButton 
                   color="inherit"
@@ -794,7 +813,7 @@ function AppInner() {
           </Toolbar>
         </AppBar>
 
-        <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Container maxWidth="xl" sx={{ py: 4, pb: 8 }}>
           {/* Hero Section with Animations */}
           <Box sx={{ mb: 6 }} className="fade-in">
             <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
@@ -951,97 +970,139 @@ function AppInner() {
             </Paper>
           </Box>
 
-          {/* Floating Action Buttons */}
-          <Box sx={{ 
-            position: 'fixed', 
-            bottom: 75, 
-            right: 24, 
-            zIndex: 1000,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            alignItems: 'flex-end',
-          }}>
-            {/* Main Floating Action Button */}
-            <Zoom in={true} style={{ transitionDelay: '100ms' }}>
-              <Tooltip title="Добавить новую запись" placement="left">
-                <Fab
-                  color="primary"
-                  aria-label="add"
-                  onClick={handleOpenAddModal}
-                  sx={{
+          {/* Speed Dial - Single button that expands on hover */}
+          <SpeedDial
+            ariaLabel="Действия"
+            sx={{ 
+              position: 'fixed',
+              bottom: 60,
+              right: 24,
+              zIndex: 1000,
+            }}
+            icon={<SpeedDialIcon />}
+            direction="up"
+            onOpen={() => setSpeedDialOpen(true)}
+            onClose={() => setSpeedDialOpen(false)}
+            open={speedDialOpen}
+            FabProps={{
+              sx: {
+                background: isDark
+                  ? 'linear-gradient(135deg, #3fb950 0%, #56d364 100%)'
+                  : 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
+                boxShadow: isDark
+                  ? '0 8px 25px rgba(63, 185, 80, 0.4)'
+                  : '0 8px 25px rgba(46, 125, 50, 0.4)',
+                width: 56,
+                height: 56,
+                '&:hover': {
+                  background: isDark
+                    ? 'linear-gradient(135deg, #238636 0%, #3fb950 100%)'
+                    : 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)',
+                  transform: 'scale(1.1)',
+                  boxShadow: isDark
+                    ? '0 12px 30px rgba(63, 185, 80, 0.6)'
+                    : '0 12px 30px rgba(46, 125, 50, 0.6)',
+                },
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                animation: 'pulse 2s infinite',
+              }
+            }}
+          >
+            {/* Add Record Action */}
+            <SpeedDialAction
+              key="add"
+              icon={<AddIcon />}
+              tooltipTitle="Добавить запись"
+              tooltipPlacement="left"
+              onClick={handleOpenAddModal}
+              FabProps={{
+                sx: {
+                  background: isDark
+                    ? 'linear-gradient(135deg, #3fb950 0%, #56d364 100%)'
+                    : 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
+                  '&:hover': {
                     background: isDark
-                      ? 'linear-gradient(135deg, #3fb950 0%, #56d364 100%)'
-                      : 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
-                    boxShadow: isDark
-                      ? '0 8px 25px rgba(63, 185, 80, 0.4)'
-                      : '0 8px 25px rgba(46, 125, 50, 0.4)',
-                    width: 56,
-                    height: 56,
-                    '&:hover': {
-                      background: isDark
-                        ? 'linear-gradient(135deg, #238636 0%, #3fb950 100%)'
-                        : 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)',
-                      transform: 'scale(1.1) rotate(5deg)',
-                      boxShadow: isDark
-                        ? '0 12px 30px rgba(63, 185, 80, 0.6)'
-                        : '0 12px 30px rgba(46, 125, 50, 0.6)',
-                    },
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    animation: 'pulse 2s infinite',
-                  }}
-                >
-                  <AddIcon sx={{ fontSize: 28 }} />
-                </Fab>
-              </Tooltip>
-            </Zoom>
+                      ? 'linear-gradient(135deg, #238636 0%, #3fb950 100%)'
+                      : 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)',
+                  }
+                }
+              }}
+            />
             
-            {/* Secondary Action Buttons - Horizontal Layout */}
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'row', 
-              gap: 2,
-              mt: 2,
-              backgroundColor: isDark
-                ? 'rgba(30, 30, 30, 0.9)'
-                : 'rgba(255, 255, 255, 0.9)',
-              borderRadius: 3,
-              p: 1.5,
-              boxShadow: isDark
-                ? '0 4px 20px rgba(0, 0, 0, 0.3)'
-                : '0 4px 20px rgba(0, 0, 0, 0.15)',
-              backdropFilter: 'blur(10px)',
-              border: isDark
-                ? '1px solid rgba(255, 255, 255, 0.1)'
-                : '1px solid rgba(255, 255, 255, 0.2)',
-            }}>
-              <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-                <Tooltip title="Быстрый поиск" placement="top">
-                  <Fab
-                    size="small"
-                    color="secondary"
-                    aria-label="search"
-                    onClick={handleOpenQuickSearch}
-                    sx={{
-                      background: 'linear-gradient(135deg, #ff6f00 0%, #ffa040 100%)',
-                      boxShadow: '0 4px 15px rgba(255, 111, 0, 0.3)',
-                      width: 48,
-                      height: 48,
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #c43e00 0%, #ff6f00 100%)',
-                        transform: 'translateY(-3px) scale(1.05)',
-                        boxShadow: '0 6px 20px rgba(255, 111, 0, 0.4)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    <SearchIcon />
-                  </Fab>
-                </Tooltip>
-              </Zoom>
+            {/* Quick Search Action */}
+            <SpeedDialAction
+              key="search"
+              icon={<SearchIcon />}
+              tooltipTitle="Быстрый поиск"
+              tooltipPlacement="left"
+              onClick={handleOpenQuickSearch}
+              FabProps={{
+                sx: {
+                  background: 'linear-gradient(135deg, #ff6f00 0%, #ffa040 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #c43e00 0%, #ff6f00 100%)',
+                  }
+                }
+              }}
+            />
+            
+            {/* Export Action */}
+            <SpeedDialAction
+              key="export"
+              icon={<DownloadIcon />}
+              tooltipTitle="Экспорт данных"
+              tooltipPlacement="left"
+              onClick={handleExportData}
+              FabProps={{
+                sx: {
+                  background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #01579b 0%, #0288d1 100%)',
+                  }
+                }
+              }}
+            />
+            
+            {/* Settings Action - Added back as requested */}
+            <SpeedDialAction
+              key="settings"
+              icon={<SettingsIcon />}
+              tooltipTitle="Настройки"
+              tooltipPlacement="left"
+              onClick={handleOpenSettings}
+              FabProps={{
+                sx: {
+                  background: 'linear-gradient(135deg, #757575 0%, #9e9e9e 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #424242 0%, #757575 100%)',
+                  }
+                }
+              }}
+            />
+            
+            {/* Refresh Action */}
+            <SpeedDialAction
+              key="refresh"
+              icon={<RefreshIcon />}
+              tooltipTitle="Обновить данные"
+              tooltipPlacement="left"
+              onClick={handleRefreshData}
+              FabProps={{
+                sx: {
+                  background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)',
+                  }
+                }
+              }}
+            />
+          </SpeedDial>
+
+            
+
               
               <Zoom in={true} style={{ transitionDelay: '300ms' }}>
-                <Tooltip title="Экспорт данных" placement="top">
+                <Tooltip title="Экспорт данных" placement="bottom">
                   <Fab
                     size="small"
                     color="info"
@@ -1065,33 +1126,10 @@ function AppInner() {
                 </Tooltip>
               </Zoom>
               
-              <Zoom in={true} style={{ transitionDelay: '400ms' }}>
-                <Tooltip title="Настройки" placement="top">
-                  <Fab
-                    size="small"
-                    color="default"
-                    aria-label="settings"
-                    onClick={handleOpenSettings}
-                    sx={{
-                      background: 'linear-gradient(135deg, #757575 0%, #9e9e9e 100%)',
-                      boxShadow: '0 4px 15px rgba(117, 117, 117, 0.3)',
-                      width: 48,
-                      height: 48,
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #424242 0%, #757575 100%)',
-                        transform: 'translateY(-3px) scale(1.05)',
-                        boxShadow: '0 6px 20px rgba(117, 117, 117, 0.4)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    <SettingsIcon />
-                  </Fab>
-                </Tooltip>
-              </Zoom>
+
               
               <Zoom in={true} style={{ transitionDelay: '500ms' }}>
-                <Tooltip title="Обновить данные" placement="top">
+                <Tooltip title="Обновить данные" placement="bottom">
                   <Fab
                     size="small"
                     color="success"
@@ -1114,9 +1152,6 @@ function AppInner() {
                   </Fab>
                 </Tooltip>
               </Zoom>
-            </Box>
-          </Box>
-
           {/* Add Record Modal Dialog */}
           <Dialog 
             open={addModalOpen} 

@@ -38,8 +38,8 @@ export interface WorkLogQueryParams {
   workTypeId?: string;
   workerName?: string;
   notes?: string;
-  minQuantity?: number;
-  maxQuantity?: number;
+  minQuantity?: string;
+  maxQuantity?: string;
   page?: number;
   limit?: number;
   sortBy?: 'workDate' | 'quantity' | 'workerName' | 'workType.name' | 'createdAt';

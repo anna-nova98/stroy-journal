@@ -125,22 +125,27 @@ const WorkLogList = () => {
     }
   }, [filterDrawerOpen]);
 
-  const { data, isLoading, error } = useWorkLogs({
+  const params = {
     date: appliedSearchDate ? format(appliedSearchDate, 'yyyy-MM-dd') : undefined,
     workerName: appliedSearchWorker || undefined,
     workTypeId: appliedSearchWorkType || undefined,
     notes: appliedSearchNotes || undefined,
-    minQuantity: appliedMinQuantity !== '' ? appliedMinQuantity : undefined,
-    maxQuantity: appliedMaxQuantity !== '' ? appliedMaxQuantity : undefined,
+    minQuantity: appliedMinQuantity !== '' ? appliedMinQuantity.toString() : undefined,
+    maxQuantity: appliedMaxQuantity !== '' ? appliedMaxQuantity.toString() : undefined,
     sortBy,
     sortOrder,
     page: page + 1,
     limit: rowsPerPage,
-  });
+  };
+  
+  console.log('WorkLogList params:', params);
+  
+  const { data, isLoading, error } = useWorkLogs(params);
 
   const { mutate: deleteWorkLog } = useDeleteWorkLog();
 
   const handleSort = (field: SortField) => {
+    console.log('handleSort called with field:', field, 'current sortBy:', sortBy, 'current sortOrder:', sortOrder);
     if (sortBy === field) {
       setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
     } else {
