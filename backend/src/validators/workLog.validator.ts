@@ -19,7 +19,7 @@ export const workLogQuerySchema = z.object({
   maxQuantity: z.string().regex(/^\d*\.?\d+$/, 'Максимальное количество должно быть числом').optional(),
   page: z.string().regex(/^\d+$/, 'Номер страницы должен быть числом').optional(),
   limit: z.string().regex(/^\d+$/, 'Лимит должен быть числом').optional(),
-  sortBy: z.enum(['workDate', 'quantity', 'workerName', 'createdAt']).optional(),
+  sortBy: z.enum(['workDate', 'quantity', 'workerName', 'workType.name', 'createdAt']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Начальная дата должна быть в формате YYYY-MM-DD').optional(),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Конечная дата должна быть в формате YYYY-MM-DD').optional(),
